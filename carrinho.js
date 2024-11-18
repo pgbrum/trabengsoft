@@ -1,44 +1,11 @@
 // carrinho.js
-
-class Produto {
-    getNome() {
-        throw new Error("Método 'getNome' deve ser implementado.");
-    }
-}
-
-class Camiseta extends Produto {
-    getNome() {
-        return "Camiseta";
-    }
-}
-
-class Calca extends Produto {
-    getNome() {
-        return "Calça";
-    }
-}
-
-class FabricaDeProdutos {
-    criarProduto() {
-        throw new Error("Método 'criarProduto' deve ser implementado.");
-    }
-}
-
-class FabricaDeRoupas extends FabricaDeProdutos {
-    criarProduto() {
-        return new Camiseta();
-    }
-}
-
-class FabricaDeAcessorios extends FabricaDeProdutos {
-    criarProduto() {
-        return new Calca();
-    }
-}
+const { Camiseta, Calca, FabricaDeRoupas, FabricaDeAcessorios } = require('./fabricaRoupas');
+const { CarrinhoMemento, HistoricoCarrinho } = require('./memento');
 
 class Carrinho {
     constructor() {
         this.produtos = [];
+        this.historico = new HistoricoCarrinho();
     }
 
     adicionarProduto(produto) {
@@ -56,7 +23,22 @@ class Carrinho {
             console.log(`${index + 1}. ${produto.getNome()}`);
         });
     }
+
+    salvarEstado() {
+        const memento = new CarrinhoMemento(this.produtos);
+        this.historico.adicionarMemento(memento);
+        console.log("Estado do carrinho salvo.");
+    }
+
+    restaurarEstado(index) {
+        const memento = this.historico.getMemento(index);
+        if (memento) {
+            this.produtos = memento.produtos;
+            console.log(`Estado do carrinho restaurado para o índice ${index}.`);
+        } else {
+            console.log("Nenhum estado encontrado para o índice especificado.");
+        }
+    }
 }
 
-// Exportação correta das classes
-module.exports = { Carrinho, Camiseta, Calca, FabricaDeRoupas, FabricaDeAcessorios };
+module.exports = { Carrinho, FabricaDeRoupas, FabricaDeAcessorios };

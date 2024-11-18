@@ -1,43 +1,30 @@
 // carrinho.test.js
+const { Carrinho } = require('./carrinho');
+const { Camiseta } = require('./fabricaRoupas');
 
-const { Carrinho, Camiseta, Calca, FabricaDeRoupas } = require('./carrinho'); // Adicione FabricaDeRoupas
-
-describe('Classe Carrinho', () => {
+describe('Classe Carrinho com Memento', () => {
     let carrinho;
 
     beforeEach(() => {
         carrinho = new Carrinho();
     });
 
-    test('Adicionar produto ao carrinho', () => {
-        const camiseta = new Camiseta();
-        carrinho.adicionarProduto(camiseta);
-        expect(carrinho.produtos).toContain(camiseta);
-    });
+    test('Salvar e restaurar estado do carrinho', () => {
+        const camiseta1 = new Camiseta();
+        const camiseta2 = new Camiseta();
 
-    test('Listar produtos no carrinho', () => {
-        const camiseta = new Camiseta();
-        carrinho.adicionarProduto(camiseta);
-        console.log = jest.fn(); // Espia o console.log
+        carrinho.adicionarProduto(camiseta1);
+        carrinho.salvarEstado();
 
-        carrinho.listarProdutos();
-        expect(console.log).toHaveBeenCalledWith("Produtos no carrinho:");
-        expect(console.log).toHaveBeenCalledWith("1. Camiseta");
-    });
+        carrinho.adicionarProduto(camiseta2);
+        carrinho.salvarEstado();
 
-    test('Exibir mensagem quando o carrinho estiver vazio', () => {
-        console.log = jest.fn(); // Espia o console.log
+        carrinho.restaurarEstado(0);
+        expect(carrinho.produtos).toHaveLength(1);
+        expect(carrinho.produtos[0]).toBe(camiseta1);
 
-        carrinho.listarProdutos();
-        expect(console.log).toHaveBeenCalledWith("O carrinho está vazio.");
-    });
-});
-
-describe('Classe FabricaDeRoupas', () => {
-    test('Criar um produto do tipo Camiseta', () => {
-        const fabricaRoupas = new FabricaDeRoupas(); // Agora deve estar definido
-        const produto = fabricaRoupas.criarProduto();
-        expect(produto).toBeInstanceOf(Camiseta);
-        expect(produto.getNome()).toBe("Camiseta");
+        carrinho.restaurarEstado(1);
+        expect(carrinho.produtos).toHaveLength(2);
+        expect(carrinho.produtos[1]).toBe(camiseta2);
     });
 });
